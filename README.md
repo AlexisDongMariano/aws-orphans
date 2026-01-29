@@ -283,36 +283,3 @@ export DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
 python3 scripts/populate_orphaned_sgs_db.py
 
 
-====
-export DATABASE_URL="postgresql://aws_orphans:postgres123@127.0.0.1:5432/aws_orphans"
-
-sudo -u postgres psql -d postgres -c "ALTER USER aws_orphans WITH PASSWORD 'postgres123';"
-psql "postgresql://aws_orphans:your_password_here@127.0.0.1:5432/aws_orphans" -c "SELECT 1"
-
-
-sudo -u postgres psql -d postgres -c "ALTER USER aws_orphans WITH PASSWORD 'testpass123';"
-
-psql "postgresql://aws_orphans:testpass123@127.0.0.1:5432/aws_orphans" -c "SELECT 1"
-
-sudo -u postgres psql -d postgres -c "ALTER USER aws_orphans WITH PASSWORD 'testpass123';"
-
-psql "postgresql://aws_orphans:testpass123@127.0.0.1:5433/aws_orphans" -c "SELECT 1"
-
-export DATABASE_URL="postgresql://aws_orphans:testpass123@127.0.0.1:5433/aws_orphans"
-python3 scripts/populate_orphaned_sgs_db.py
-
-sudo -u postgres psql -d postgres << 'EOF'
-DROP USER IF EXISTS aws_orphans;
-DROP DATABASE IF EXISTS aws_orphans;
-CREATE USER aws_orphans WITH PASSWORD 'testpass123';
-CREATE DATABASE aws_orphans OWNER aws_orphans;
-EOF
-
-sudo -u postgres psql -d postgres << 'EOF'
-DROP DATABASE IF EXISTS aws_orphans;
-DROP USER IF EXISTS aws_orphans;
-CREATE USER aws_orphans WITH PASSWORD 'testpass123';
-CREATE DATABASE aws_orphans OWNER aws_orphans;
-EOF
-
-sudo -u postgres psql -d postgres -c "SHOW hba_file; SHOW listen_addresses; SHOW port;"
