@@ -149,8 +149,8 @@ After=network.target postgresql.service
 
 [Service]
 Type=simple
-User=azureuser
-Group=azureuser
+User=localadmin
+Group=localadmin
 WorkingDirectory=/opt/aws-orphans
 EnvironmentFile=/opt/aws-orphans/.env
 ExecStart=/opt/aws-orphans/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -250,6 +250,70 @@ The app is now reachable only from the VM (nginx on 80, proxying to 127.0.0.1:80
 
 ---
 
+## Cron: run populate scripts daily at 11pm PST
+
+To refresh the DB every day at **11pm Pacific (PST/PDT)**:
+
+### 1. Make the cron script executable
+
+```bash
+chmod +x /opt/aws-orphans/scripts/cron_populate_all.sh
+```
+
+That script loads `.env` and runs the three populate scripts (SGs, EIPs, EBS) in order.
+
+### 2. (Optional) Log output
+
+Create a log file so you can see errors:
+
+```bash
+sudo touch /var/log/aws-orphans-cron.log
+sudo chown localadmin:localadmin /var/log/aws-orphans-cron.log
+```
+
+### 3. Add the crontab entry
+
+Edit your user crontab:
+
+```bash
+crontab -e
+```
+
+Use **11pm Pacific** in one of these ways:
+
+**Option A — Server timezone is Pacific**
+
+If the VM’s timezone is already `America/Los_Angeles` (check with `timedatectl`):
+
+```cron
+0 23 * * * /opt/aws-orphans/scripts/cron_populate_all.sh >> /var/log/aws-orphans-cron.log 2>&1
+```
+
+**Option B — Force Pacific in crontab**
+
+Put this at the **top** of the crontab (so the job runs at 11pm Pacific even if the server is in UTC):
+
+```cron
+TZ=America/Los_Angeles
+0 23 * * * /opt/aws-orphans/scripts/cron_populate_all.sh >> /var/log/aws-orphans-cron.log 2>&1
+```
+
+**Option C — Set system timezone to Pacific**
+
+```bash
+sudo timedatectl set-timezone America/Los_Angeles
+```
+
+Then use the same line as Option A (`0 23 * * *`).
+
+### 4. Verify
+
+- Cron runs as the user who owns the crontab; that user must have read access to `/opt/aws-orphans` and `.env`.
+- After saving crontab, the job runs daily at 11pm PST (or PDT when daylight saving applies).
+- Check logs: `tail -f /var/log/aws-orphans-cron.log` (after the first run).
+
+---
+
 ## Quick checklist
 
 | Step | Done |
@@ -263,6 +327,7 @@ The app is now reachable only from the VM (nginx on 80, proxying to 127.0.0.1:80
 | Venv + `pip install -r requirements.txt` | ☐ |
 | Create `.env` with `DATABASE_URL` | ☐ |
 | (Optional) Run populate scripts | ☐ |
+| (Optional) Cron: daily 11pm PST (`crontab -e`) | ☐ |
 | Create and start `aws-orphans.service` | ☐ |
 | Configure nginx and reload | ☐ |
 | Open `http://<VM_PUBLIC_IP>` in browser | ☐ |

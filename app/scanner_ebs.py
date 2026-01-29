@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def ebs_volume_console_url(region: str, volume_id: str) -> str:
     """AWS EC2 console URL for an EBS volume (for hyperlinks in web app)."""
     return (
-        f"https://{region}.console.aws.amazon.com/ec2/home"
+        f"https://{region}.console.aws.amazon.com/ec2/v2/home"
         f"?region={region}#VolumeDetails:VolumeId={volume_id}"
     )
 
