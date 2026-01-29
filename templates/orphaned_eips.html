@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orphaned Elastic IPs</title>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    {% include '_nav.html' %}
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-semibold text-slate-800">Orphaned Elastic IPs</h1>
+      <a href="/api/orphaned-eips/export" download="orphaned-elastic-ips.xlsx" class="px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-600">Export to Excel</a>
+    </div>
+    <p class="text-slate-600 mb-4">Data from database. Run <code class="bg-slate-200 px-1 rounded">scripts/populate_orphaned_eips_db.py</code> to refresh.</p>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div
+        id="orphaned-eips-content"
+        hx-get="/api/orphaned-eips/table"
+        hx-trigger="load"
+        hx-swap="innerHTML">
+        <p class="p-4 text-slate-500">Loading…</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

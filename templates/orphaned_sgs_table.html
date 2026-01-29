@@ -1,0 +1,33 @@
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 text-slate-700 text-sm">
+  <strong>Total:</strong> {{ total }} orphaned security group{{ 's' if total != 1 else '' }}
+  <span class="ml-4">By region:</span>
+  {% for item in regions_with_count %}
+  <span class="ml-2">{{ item.region }}: {{ item.count }}</span>
+  {% endfor %}
+</div>
+<table class="w-full text-left">
+  <thead class="bg-slate-100 text-slate-700">
+    <tr>
+      <th class="px-4 py-3 font-medium">Region</th>
+      <th class="px-4 py-3 font-medium">Group ID</th>
+      <th class="px-4 py-3 font-medium">Name</th>
+      <th class="px-4 py-3 font-medium">Description</th>
+      <th class="px-4 py-3 font-medium">VPC</th>
+      <th class="px-4 py-3 font-medium">Link</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for r in rows %}
+    <tr class="border-b border-slate-200 hover:bg-slate-50">
+      <td class="px-4 py-2 text-slate-700">{{ r.region }}</td>
+      <td class="px-4 py-2"><a href="{{ r.console_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline">{{ r.group_id }}</a></td>
+      <td class="px-4 py-2 text-slate-700">{{ r.group_name }}</td>
+      <td class="px-4 py-2 text-slate-600 max-w-xs truncate" title="{{ r.description or '' }}">{{ r.description or '—' }}</td>
+      <td class="px-4 py-2 text-slate-600">{{ r.vpc_id or '—' }}</td>
+      <td class="px-4 py-2"><a href="{{ r.console_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Open in AWS</a></td>
+    </tr>
+{% else %}
+    <tr><td colspan="6" class="px-4 py-8 text-slate-500 text-center">No orphaned security groups in the database. Run scripts/populate_orphaned_sgs_db.py</td></tr>
+{% endfor %}
+  </tbody>
+</table>
